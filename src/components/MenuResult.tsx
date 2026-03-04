@@ -20,19 +20,27 @@ export function MenuResult({ menu, onRegenerate, isLoading }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-800">今日の献立</h2>
+      {/* タイトル */}
+      <div className="flex items-center justify-between px-1">
+        <div>
+          <p className="text-xs font-medium" style={{ color: "#B5A8C8", letterSpacing: "0.08em" }}>
+            TODAY'S MENU
+          </p>
+          <h2 className="text-lg font-bold" style={{ color: "#5C5055" }}>
+            今日の献立 🌸
+          </h2>
+        </div>
         <button
           onClick={onRegenerate}
           disabled={isLoading}
-          className="flex items-center gap-1.5 text-sm text-green-600 hover:text-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-1.5 text-sm px-4 py-2 rounded-full font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            border: "1.5px solid #C9A0A4",
+            color: "#C9A0A4",
+            backgroundColor: "#FDFBFB",
+          }}
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -44,12 +52,14 @@ export function MenuResult({ menu, onRegenerate, isLoading }: Props) {
         </button>
       </div>
 
+      {/* カード一覧 */}
       <div className="space-y-4">
         {entries.map((key) => (
           <DishCard
             key={key}
             title={MEAL_LABELS[key]}
             dish={menu[key]!}
+            mealKey={key}
           />
         ))}
       </div>

@@ -7,12 +7,33 @@ interface Props {
 }
 
 const GENRES = ["和食", "洋食", "中華", "エスニック", "イタリアン", "その他"];
-const MEAL_OPTIONS: { value: MealType; label: string }[] = [
-  { value: "breakfast", label: "朝食" },
-  { value: "lunch", label: "昼食" },
-  { value: "dinner", label: "夕食" },
+const MEAL_OPTIONS: { value: MealType; label: string; emoji: string }[] = [
+  { value: "breakfast", label: "朝食", emoji: "☀️" },
+  { value: "lunch", label: "昼食", emoji: "🌿" },
+  { value: "dinner", label: "夕食", emoji: "🌙" },
 ];
 const COOKING_TIMES = ["15分以内", "30分以内", "1時間以内", "こだわらない"];
+
+const labelStyle = {
+  display: "block",
+  fontSize: "0.8rem",
+  fontWeight: 600,
+  color: "#9C8F93",
+  marginBottom: "8px",
+  letterSpacing: "0.05em",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "10px 14px",
+  border: "1.5px solid #EDE0E3",
+  borderRadius: "12px",
+  fontSize: "0.875rem",
+  color: "#5C5055",
+  backgroundColor: "#FDFBFB",
+  outline: "none",
+  resize: "none" as const,
+};
 
 export function ConditionForm({ onSubmit, isLoading }: Props) {
   const [conditions, setConditions] = useState<MenuConditions>({
@@ -42,98 +63,94 @@ export function ConditionForm({ onSubmit, isLoading }: Props) {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (conditions.mealTypes.length === 0) return;
     onSubmit(conditions);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* 食事の種類 */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          食事の種類 <span className="text-red-500">*</span>
-        </label>
-        <div className="flex gap-3">
-          {MEAL_OPTIONS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => toggleMealType(value)}
-              className={`flex-1 py-2 px-4 rounded-lg border-2 text-sm font-medium transition-colors ${
-                conditions.mealTypes.includes(value)
-                  ? "border-green-600 bg-green-50 text-green-700"
-                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <label style={labelStyle}>食事の種類</label>
+        <div className="flex gap-2">
+          {MEAL_OPTIONS.map(({ value, label, emoji }) => {
+            const selected = conditions.mealTypes.includes(value);
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => toggleMealType(value)}
+                className="flex-1 py-2.5 rounded-2xl text-sm font-medium transition-all"
+                style={
+                  selected
+                    ? {
+                        border: "1.5px solid #C9A0A4",
+                        backgroundColor: "#F5EDEE",
+                        color: "#C9A0A4",
+                      }
+                    : {
+                        border: "1.5px solid #EDE0E3",
+                        backgroundColor: "#FDFBFB",
+                        color: "#9C8F93",
+                      }
+                }
+              >
+                <span className="block text-base">{emoji}</span>
+                {label}
+              </button>
+            );
+          })}
         </div>
         {conditions.mealTypes.length === 0 && (
-          <p className="text-xs text-red-500 mt-1">食事を1つ以上選択してください</p>
+          <p className="text-xs mt-1" style={{ color: "#C9A0A4" }}>
+            食事を1つ以上選んでね
+          </p>
         )}
       </div>
 
       {/* 手持ち食材 */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          手持ち食材
-        </label>
+        <label style={labelStyle}>手持ち食材</label>
         <textarea
           value={conditions.ingredients}
           onChange={(e) =>
             setConditions((prev) => ({ ...prev, ingredients: e.target.value }))
           }
-          placeholder="例: 鶏肉、玉ねぎ、じゃがいも、にんじん"
+          placeholder="例: 鶏肉、玉ねぎ、じゃがいも"
           rows={2}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+          style={inputStyle}
         />
       </div>
 
       {/* 人数 & 調理時間 */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            人数
-          </label>
+          <label style={labelStyle}>人数</label>
           <select
             value={conditions.servings}
             onChange={(e) =>
-              setConditions((prev) => ({
-                ...prev,
-                servings: Number(e.target.value),
-              }))
+              setConditions((prev) => ({ ...prev, servings: Number(e.target.value) }))
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+            style={{ ...inputStyle, resize: undefined }}
           >
             {[1, 2, 3, 4, 5, 6].map((n) => (
-              <option key={n} value={n}>
-                {n}人
-              </option>
+              <option key={n} value={n}>{n}人</option>
             ))}
           </select>
         </div>
-
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            調理時間
-          </label>
+          <label style={labelStyle}>調理時間</label>
           <select
             value={conditions.cookingTime}
             onChange={(e) =>
-              setConditions((prev) => ({
-                ...prev,
-                cookingTime: e.target.value,
-              }))
+              setConditions((prev) => ({ ...prev, cookingTime: e.target.value }))
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+            style={{ ...inputStyle, resize: undefined }}
           >
             {COOKING_TIMES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
         </div>
@@ -141,52 +158,61 @@ export function ConditionForm({ onSubmit, isLoading }: Props) {
 
       {/* ジャンル */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          好みのジャンル
-        </label>
+        <label style={labelStyle}>好みのジャンル</label>
         <div className="flex flex-wrap gap-2">
-          {GENRES.map((genre) => (
-            <button
-              key={genre}
-              type="button"
-              onClick={() => toggleGenre(genre)}
-              className={`py-1 px-3 rounded-full border text-sm transition-colors ${
-                conditions.genres.includes(genre)
-                  ? "border-green-600 bg-green-50 text-green-700"
-                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-              }`}
-            >
-              {genre}
-            </button>
-          ))}
+          {GENRES.map((genre) => {
+            const selected = conditions.genres.includes(genre);
+            return (
+              <button
+                key={genre}
+                type="button"
+                onClick={() => toggleGenre(genre)}
+                className="py-1.5 px-4 rounded-full text-sm transition-all"
+                style={
+                  selected
+                    ? {
+                        border: "1.5px solid #B5A8C8",
+                        backgroundColor: "#F0ECF6",
+                        color: "#B5A8C8",
+                      }
+                    : {
+                        border: "1.5px solid #EDE0E3",
+                        backgroundColor: "#FDFBFB",
+                        color: "#9C8F93",
+                      }
+                }
+              >
+                {genre}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* 避けたい食材 */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          避けたい食材
-        </label>
+        <label style={labelStyle}>避けたい食材</label>
         <input
           type="text"
           value={conditions.avoidIngredients}
           onChange={(e) =>
-            setConditions((prev) => ({
-              ...prev,
-              avoidIngredients: e.target.value,
-            }))
+            setConditions((prev) => ({ ...prev, avoidIngredients: e.target.value }))
           }
           placeholder="例: ピーマン、セロリ"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          style={inputStyle}
         />
       </div>
 
       <button
         type="submit"
         disabled={isLoading || conditions.mealTypes.length === 0}
-        className="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full py-3.5 rounded-2xl text-white font-semibold text-sm transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{
+          background: "linear-gradient(135deg, #C9A0A4 0%, #B5A8C8 100%)",
+          letterSpacing: "0.05em",
+        }}
       >
-        {isLoading ? "AIが考え中..." : "献立を生成する"}
+        {isLoading ? "考え中... ✨" : "🍽️ 献立を生成する"}
       </button>
     </form>
   );
