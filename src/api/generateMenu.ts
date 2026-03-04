@@ -1,10 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { MenuConditions, GeneratedMenu } from "../types";
 
-const client = new Anthropic({
-  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
-  dangerouslyAllowBrowser: true,
-});
+function getClient() {
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY as string | undefined;
+  if (!apiKey) {
+    throw new Error(".env ファイルに VITE_ANTHROPIC_API_KEY が設定されていません。サーバーを再起動してください。");
+  }
+  return new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+}
 
 const SYSTEM_PROMPT = `あなたは料理の専門家です。ユーザーの条件に基づいて献立を提案してください。
 必ず以下のJSON形式のみで返してください。余分なテキスト、コードブロック記号、説明は一切含めないでください。
@@ -47,7 +50,7 @@ export async function generateMenu(
 好みのジャンル: ${genres}
 避けたい食材: ${conditions.avoidIngredients || "特になし"}`;
 
-  const stream = client.messages.stream({
+  const stream = getClient().messages.stream({
     model: "claude-opus-4-6",
     max_tokens: 4096,
     system: SYSTEM_PROMPT,
